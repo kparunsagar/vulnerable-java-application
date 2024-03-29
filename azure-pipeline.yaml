@@ -1,0 +1,29 @@
+trigger:
+- e2e_mudulerised_repo
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: "SECURE_TOKENS"
+- name: snyk_token
+  value: $[variables.SNYKTOKEN]
+- name: sonar_token
+  value: $[variables.SONARTOKEN]
+
+stages:
+- stage: Sonar_SAST_Scan_Job
+  jobs:
+  - template: sonar_sast_scan.yaml
+    parameters:
+      sonar_token: $(sonar_token)
+
+- stage: SNYK_SCA_Scan
+  jobs:
+  - template: snyk_sca_scan.yaml
+    parameters: 
+      snyk_token: $(snyk_token)
+
+- stage: ZAP_DAST_Scan
+  jobs:
+    - template: owasp_zap_dast_scan.yaml
